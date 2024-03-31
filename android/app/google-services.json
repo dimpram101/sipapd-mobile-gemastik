@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "242023549192",
+    "project_id": "sipapd-gemastik",
+    "storage_bucket": "sipapd-gemastik.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242023549192:android:569bf897ec6675d04d44bd",
+        "android_client_info": {
+          "package_name": "com.example.sipapd_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRitgxiYE2e9rsFOdgOA-JaxPVqfZG8OE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
