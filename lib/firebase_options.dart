@@ -65,4 +65,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'sipapd-gemastik.appspot.com',
     iosBundleId: 'com.example.sipapdMobile',
   );
+
 }

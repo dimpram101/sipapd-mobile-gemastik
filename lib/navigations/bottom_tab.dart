@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:sipapd_mobile/screens/account_screen.dart';
 import 'package:sipapd_mobile/screens/attribute_screen.dart';
@@ -24,6 +25,19 @@ class _BottomTab extends State<BottomTab> {
     const AttributeScreen(),
     const AccountScreen(),
   ];
+
+  void setupPushNotification() async {
+    final fcm = FirebaseMessaging.instance;
+    await fcm.requestPermission();
+    await fcm.subscribeToTopic("detection");
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setupPushNotification();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sipapd_mobile/widgets/attribute_option.dart';
 
@@ -9,13 +10,40 @@ class AttributeScreen extends StatefulWidget {
 }
 
 class _AttributeScreenState extends State<AttributeScreen> {
-  bool _gloves = true;
-  bool _vest = true;
-  bool _boots = true;
-  bool _helmet = true;
+  List<Map<String, dynamic>> _attributeData = [];
+
+  void _getAttributeData() async {
+    final attributeData = await FirebaseFirestore.instance.collection('attributes').get();
+    final allData = attributeData.docs.map((doc) => doc.data()).toList();
+
+    setState(() {
+      _attributeData = allData;
+    });
+  }
+
+  void _updateAttributeData(String attrName, bool isActive) async {
+    final attributeData =
+        await FirebaseFirestore.instance.collection('attributes').where('name', isEqualTo: attrName).get();
+    final docId = attributeData.docs.first.id;
+
+    await FirebaseFirestore.instance.collection('attributes').doc(docId).update({'is_active': isActive});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getAttributeData();
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_attributeData.isEmpty) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -41,10 +69,11 @@ class _AttributeScreenState extends State<AttributeScreen> {
           AttributeOption(
             title: "Gloves",
             assetPath: "assets/rubber-gloves.png",
-            isActive: _gloves,
+            isActive: _attributeData.firstWhere((element) => element['name'] == 'Gloves')['is_active'] ?? false,
             onChanged: (bool value) {
+              _updateAttributeData("Gloves", value);
               setState(() {
-                _gloves = value;
+                _attributeData.firstWhere((element) => element['name'] == 'Gloves')['is_active'] = value;
               });
             },
           ),
@@ -52,21 +81,25 @@ class _AttributeScreenState extends State<AttributeScreen> {
           AttributeOption(
             title: "Vest",
             assetPath: "assets/vest.png",
-            isActive: _vest,
+            isActive: _attributeData.firstWhere((element) => element['name'] == 'Vest')['is_active'] ?? false,
             onChanged: (bool value) {
+              _updateAttributeData("Vest", value);
               setState(() {
-                _vest = value;
+                _attributeData.firstWhere((element) => element['name'] == 'Vest')['is_active'] = value;
               });
             },
           ),
           const SizedBox(height: 24),
           AttributeOption(
-            title: "Boots",
+            title: "Shoes",
             assetPath: "assets/boots.png",
-            isActive: _boots,
+            isActive: _attributeData.firstWhere((element) => element['name'] == 'Shoes')['is_active'] ?? false,
             onChanged: (bool value) {
               setState(() {
-                _boots = value;
+                _updateAttributeData("Shoes", value);
+                setState(() {
+                  _attributeData.firstWhere((element) => element['name'] == 'Shoes')['is_active'] = value;
+                });
               });
             },
           ),
@@ -74,10 +107,11 @@ class _AttributeScreenState extends State<AttributeScreen> {
           AttributeOption(
             title: "Helmet",
             assetPath: "assets/safety.png",
-            isActive: _helmet,
+            isActive: _attributeData.firstWhere((element) => element['name'] == 'Helmet')['is_active'] ?? false,
             onChanged: (bool value) {
+              _updateAttributeData("Helmet", value);
               setState(() {
-                _helmet = value;
+                _attributeData.firstWhere((element) => element['name'] == 'Helmet')['is_active'] = value;
               });
             },
           ),
