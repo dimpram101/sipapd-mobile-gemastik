@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:sipapd_mobile/widgets/attribute_option.dart';
 
 class AttributeScreen extends StatefulWidget {
@@ -11,6 +12,8 @@ class AttributeScreen extends StatefulWidget {
 
 class _AttributeScreenState extends State<AttributeScreen> {
   List<Map<String, dynamic>> _attributeData = [];
+
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
 
   void _getAttributeData() async {
     final attributeData = await FirebaseFirestore.instance.collection('attributes').get();
@@ -46,76 +49,84 @@ class _AttributeScreenState extends State<AttributeScreen> {
 
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                IconData(0xe0b5, fontFamily: 'MaterialIcons'),
-                size: 32,
-              ),
-              SizedBox(width: 8),
-              Text(
-                'Attribute',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
+      child: SmartRefresher(
+        controller: _refreshController,
+        enablePullDown: true,
+        onRefresh: () async {
+          _getAttributeData();
+          _refreshController.refreshCompleted();
+        },
+        child: Column(
+          children: [
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  IconData(0xe0b5, fontFamily: 'MaterialIcons'),
+                  size: 32,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          AttributeOption(
-            title: "Gloves",
-            assetPath: "assets/rubber-gloves.png",
-            isActive: _attributeData.firstWhere((element) => element['name'] == 'Gloves')['is_active'] ?? false,
-            onChanged: (bool value) {
-              _updateAttributeData("Gloves", value);
-              setState(() {
-                _attributeData.firstWhere((element) => element['name'] == 'Gloves')['is_active'] = value;
-              });
-            },
-          ),
-          const SizedBox(height: 24),
-          AttributeOption(
-            title: "Vest",
-            assetPath: "assets/vest.png",
-            isActive: _attributeData.firstWhere((element) => element['name'] == 'Vest')['is_active'] ?? false,
-            onChanged: (bool value) {
-              _updateAttributeData("Vest", value);
-              setState(() {
-                _attributeData.firstWhere((element) => element['name'] == 'Vest')['is_active'] = value;
-              });
-            },
-          ),
-          const SizedBox(height: 24),
-          AttributeOption(
-            title: "Shoes",
-            assetPath: "assets/boots.png",
-            isActive: _attributeData.firstWhere((element) => element['name'] == 'Shoes')['is_active'] ?? false,
-            onChanged: (bool value) {
-              setState(() {
-                _updateAttributeData("Shoes", value);
+                SizedBox(width: 8),
+                Text(
+                  'Attribute',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            AttributeOption(
+              title: "Gloves",
+              assetPath: "assets/rubber-gloves.png",
+              isActive: _attributeData.firstWhere((element) => element['name'] == 'Gloves')['is_active'] ?? false,
+              onChanged: (bool value) {
+                _updateAttributeData("Gloves", value);
                 setState(() {
-                  _attributeData.firstWhere((element) => element['name'] == 'Shoes')['is_active'] = value;
+                  _attributeData.firstWhere((element) => element['name'] == 'Gloves')['is_active'] = value;
                 });
-              });
-            },
-          ),
-          const SizedBox(height: 24),
-          AttributeOption(
-            title: "Helmet",
-            assetPath: "assets/safety.png",
-            isActive: _attributeData.firstWhere((element) => element['name'] == 'Helmet')['is_active'] ?? false,
-            onChanged: (bool value) {
-              _updateAttributeData("Helmet", value);
-              setState(() {
-                _attributeData.firstWhere((element) => element['name'] == 'Helmet')['is_active'] = value;
-              });
-            },
-          ),
-        ],
+              },
+            ),
+            const SizedBox(height: 24),
+            AttributeOption(
+              title: "Vest",
+              assetPath: "assets/vest.png",
+              isActive: _attributeData.firstWhere((element) => element['name'] == 'Vest')['is_active'] ?? false,
+              onChanged: (bool value) {
+                _updateAttributeData("Vest", value);
+                setState(() {
+                  _attributeData.firstWhere((element) => element['name'] == 'Vest')['is_active'] = value;
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            AttributeOption(
+              title: "Shoes",
+              assetPath: "assets/boots.png",
+              isActive: _attributeData.firstWhere((element) => element['name'] == 'Shoes')['is_active'] ?? false,
+              onChanged: (bool value) {
+                setState(() {
+                  _updateAttributeData("Shoes", value);
+                  setState(() {
+                    _attributeData.firstWhere((element) => element['name'] == 'Shoes')['is_active'] = value;
+                  });
+                });
+              },
+            ),
+            const SizedBox(height: 24),
+            AttributeOption(
+              title: "Helmet",
+              assetPath: "assets/safety.png",
+              isActive: _attributeData.firstWhere((element) => element['name'] == 'Helmet')['is_active'] ?? false,
+              onChanged: (bool value) {
+                _updateAttributeData("Helmet", value);
+                setState(() {
+                  _attributeData.firstWhere((element) => element['name'] == 'Helmet')['is_active'] = value;
+                });
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -29,6 +29,7 @@ class _BottomTab extends State<BottomTab> {
   void setupPushNotification() async {
     final fcm = FirebaseMessaging.instance;
     await fcm.requestPermission();
+
     await fcm.subscribeToTopic("detection");
   }
 

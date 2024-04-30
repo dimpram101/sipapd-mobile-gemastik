@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -21,8 +22,9 @@ class _AccountScreenState extends State<AccountScreen> {
     });
   }
 
-  void _logout() {
+  void _logout() async {
     FirebaseAuth.instance.signOut();
+    //await FirebaseMessaging.instance.unsubscribeFromTopic("detection");
   }
 
   @override
@@ -63,7 +65,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Nama',
+            'Name',
             style: TextStyle(
               fontSize: 16,
             ),
@@ -103,7 +105,7 @@ class _AccountScreenState extends State<AccountScreen> {
           ),
           const SizedBox(height: 24),
           const Text(
-            'Jabatan',
+            'Role',
             style: TextStyle(
               fontSize: 16,
             ),
