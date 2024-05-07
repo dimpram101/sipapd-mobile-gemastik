@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:sipapd_mobile/extensions/date_formatter.dart';
 import 'package:sipapd_mobile/utils/string_utils.dart';
+// import 'package:sipapd_mobile/utils/string_utils.dart';
 import 'package:sipapd_mobile/widgets/image_dialog.dart';
 
 class DetectionScreen extends StatefulWidget {
@@ -56,8 +57,12 @@ class _DetectionState extends State<DetectionScreen> {
                     onPressed: () async {
                       var results = await showCalendarDatePicker2Dialog(
                         context: context,
-                        config: CalendarDatePicker2WithActionButtonsConfig(),
+                        config: CalendarDatePicker2WithActionButtonsConfig(
+                          calendarType: CalendarDatePicker2Type.single,
+                          lastDate: DateTime.now(),
+                        ),
                         dialogSize: const Size(325, 400),
+                        value: dateFilter,
                       );
 
                       if (results != null) {
@@ -77,7 +82,11 @@ class _DetectionState extends State<DetectionScreen> {
           const SizedBox(height: 24),
           Flexible(
             child: StreamBuilder(
-              stream: FirebaseFirestore.instance.collection("detections").orderBy("time", descending: true).snapshots(),
+              stream: FirebaseFirestore.instance
+                  .collection("detections")
+                  // .where('time', isLessThanOrEqualTo: dateFilter.first)
+                  .orderBy("time", descending: true)
+                  .snapshots(),
               builder: (ctx, snapshots) {
                 if (snapshots.connectionState == ConnectionState.waiting) {
                   return const Center(
@@ -87,7 +96,7 @@ class _DetectionState extends State<DetectionScreen> {
 
                 if (!snapshots.hasData || snapshots.data!.docs.isEmpty) {
                   return const Center(
-                    child: Text('No messages found'),
+                    child: Text('No data found'),
                   );
                 }
 
@@ -99,8 +108,20 @@ class _DetectionState extends State<DetectionScreen> {
 
                 final detectionDocs = snapshots.data!.docs;
 
+                final filteredDetectionDocs = detectionDocs.where((element) {
+                  var date = StringUtils.timestampToDate(element['time']);
+                  var filterDate = StringUtils.dateTimetoDate(dateFilter.first!);
+                  return date == filterDate;
+                }).toList();
+
+                if (filteredDetectionDocs.isEmpty) {
+                  return const Center(
+                    child: Text('No data found'),
+                  );
+                }
+
                 return ListView.builder(
-                  itemCount: detectionDocs.length,
+                  itemCount: filteredDetectionDocs.length,
                   itemBuilder: (ctx, index) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 2, bottom: 2),
@@ -113,21 +134,22 @@ class _DetectionState extends State<DetectionScreen> {
                           await showDialog(
                             context: context,
                             builder: (_) => ImageDialog(
-                              imgUrl: detectionDocs[index]["image_url"],
+                              imgUrl: filteredDetectionDocs[index]["image_url"],
                             ),
                           );
                         },
                         title: Text(
-                          detectionDocs[index]['attribute'].toString(),
-                          //StringUtils.attributeFormatter(detectionDocs[index]['attribute']),
+                          // filteredDetectionDocs[index]['attribute'].toString(),
+                          StringUtils.attributeFormatter(filteredDetectionDocs[index]['attribute']),
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         subtitle: Text(
-                          detectionDocs[index]['time'].toString(),
-                          //StringUtils.dateToString(detectionDocs[index]['time'], "_"),
-                        ),
+                            // (filteredDetectionDocs[index]['time'] as Timestamp).toDate().toString(),
+                            StringUtils.timestampToDate(filteredDetectionDocs[index]['time'] as Timestamp)
+                            //StringUtils.dateToString(detectionDocs[index]['time'], "_"),
+                            ),
                       ),
                     );
                   },
